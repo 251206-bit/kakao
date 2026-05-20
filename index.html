@@ -3,15 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>핑키 리본 장소 검색</title>
+    <title>카페인 수형 지도</title>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=efddfb39f59d8f50b40de5655470573d&libraries=services"></script>
     <style>
-        /* 헬로키티 테마 컬러 정의 */
+        /* 아늑한 카페 & 커피 테마 컬러 정의 */
         :root {
-            --kitty-pink: #FFB7D5;
-            --kitty-dark-pink: #FF85B2;
-            --kitty-white: #FFFFFF;
-            --kitty-border: #FFD1E3;
+            --cafe-roast: #6F4E37;      /* 진한 에스프레소 브라운 */
+            --cafe-latte: #C19A6B;      /* 부드러운 라떼 브라운 */
+            --cafe-cream: #FDFBF7;      /* 따뜻하고 편안한 크림 아이보리 */
+            --cafe-rest: #A3B19B;       /* 휴식을 주는 차분한 말차 그린 */
+            --cafe-border: #E6DCD2;     /* 부드러운 베이지 톤 테두리 */
         }
 
         * {
@@ -24,7 +25,8 @@
             width: 100%;
             height: 100%;
             font-family: 'Malgun Gothic', sans-serif;
-            background-color: var(--kitty-white);
+            background-color: var(--cafe-cream);
+            color: #333;
         }
 
         .container {
@@ -33,47 +35,74 @@
             height: 100vh;
         }
 
-        /* 왼쪽 사이드바: 분홍분홍한 스타일 */
+        /* 왼쪽 사이드바 */
         .sidebar {
             width: 380px;
             height: 100%;
-            background: #FFF9FB;
-            border-right: 5px solid var(--kitty-pink);
+            background: #FAF6F0;
+            border-right: 5px solid var(--cafe-latte);
             display: flex;
             flex-direction: column;
             padding: 25px;
             z-index: 10;
-            box-shadow: 5px 0 15px rgba(255, 183, 213, 0.3);
+            box-shadow: 5px 0 15px rgba(111, 78, 55, 0.1);
         }
 
         .search-box h2 {
-            color: var(--kitty-dark-pink);
+            color: var(--cafe-roast);
             font-size: 24px;
             margin-bottom: 15px;
             text-align: center;
-            /* 리본 느낌을 주기 위한 텍스트 장식 */
-            text-shadow: 2px 2px 0px #fff, 4px 4px 0px var(--kitty-border);
+            text-shadow: 1px 1px 0px #fff, 2px 2px 0px var(--cafe-border);
         }
 
         .search-box input {
             width: 100%;
             padding: 15px;
-            border: 3px solid var(--kitty-pink);
-            border-radius: 30px; /* 둥글둥글하게 */
+            border: 2px solid var(--cafe-latte);
+            border-radius: 12px;
             outline: none;
             font-size: 16px;
             transition: 0.3s;
+            background-color: #fff;
         }
 
         .search-box input:focus {
-            border-color: var(--kitty-dark-pink);
-            box-shadow: 0 0 10px var(--kitty-pink);
+            border-color: var(--cafe-roast);
+            box-shadow: 0 0 10px rgba(111, 78, 55, 0.2);
+        }
+
+        /* 탭 스타일 추가 */
+        .tab-container {
+            display: flex;
+            margin-top: 15px;
+            background: #EEF2E6; /* 연한 그리니시 베이지 */
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: bold;
+            color: #777;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .tab-button.active {
+            background: var(--cafe-roast);
+            color: #fff;
         }
 
         /* 결과 리스트 스타일 */
         #resultList {
             flex-grow: 1;
-            margin-top: 20px;
+            margin-top: 15px;
             overflow-y: auto;
             list-style: none;
         }
@@ -82,21 +111,30 @@
             padding: 15px;
             margin-bottom: 10px;
             background: #fff;
-            border: 2px solid var(--kitty-border);
-            border-radius: 15px;
+            border: 1px solid var(--cafe-border);
+            border-radius: 10px;
             cursor: pointer;
             transition: 0.2s;
         }
 
         .result-item:hover {
-            background-color: var(--kitty-pink);
+            background-color: var(--cafe-rest);
             color: white;
-            transform: scale(1.02);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
         }
 
         .result-item strong {
             display: block;
             margin-bottom: 5px;
+            color: inherit;
+        }
+        
+        .result-item small {
+            color: #666;
+        }
+        .result-item:hover small {
+            color: #eeeeee;
         }
 
         /* 오른쪽 지도 */
@@ -107,10 +145,10 @@
 
         /* 스크롤바 커스텀 */
         #resultList::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
         #resultList::-webkit-scrollbar-thumb {
-            background: var(--kitty-pink);
+            background: var(--cafe-latte);
             border-radius: 10px;
         }
     </style>
@@ -120,20 +158,29 @@
 <div class="container">
     <div class="sidebar">
         <div class="search-box">
-            <h2>🎀 장소 검색 🎀</h2>
-            <input type="text" id="keyword" placeholder="어디로 가고 싶어?">
+            <h2>☕ 카페인 수형 지도 🌿</h2>
+            <input type="text" id="keyword" placeholder="동네 이름이나 지역을 검색해봐! (예: 강남역)">
         </div>
-        <ul id="resultList">
-            </ul>
+        
+        <div class="tab-container">
+            <button class="tab-button active" onclick="switchTab('brand')">브랜드 커피숍</button>
+            <button class="tab-button" onclick="switchTab('private')">개인 커피숍</button>
+        </div>
+
+        <ul id="resultList"></ul>
     </div>
     <div id="map"></div>
 </div>
 
 <script>
     let map;
-    let marker;
+    let currentMarker;
+    let currentTab = 'brand'; // 현재 활성화된 탭 ('brand' 또는 'private')
+    let rawSearchData = [];   // 카카오 API로부터 받은 순수 검색 결과 보관용
 
-    // 지도가 로드되지 않는 문제를 방지하기 위해 Kakao SDK가 준비된 후 실행
+    // 지정된 브랜드 커피숍 리스트
+    const brandKeywords = ['스타벅스', '메가커피', '이디야', '더벤티', '빽다방', '할리스', '컴포즈', '투썸', '폴바셋'];
+
     kakao.maps.load(function() {
         initMap();
     });
@@ -147,7 +194,6 @@
 
         map = new kakao.maps.Map(mapContainer, mapOption);
 
-        // 내 위치 찾기
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(function(position) {
                 const lat = position.coords.latitude;
@@ -163,55 +209,52 @@
     }
 
     function displayMarker(locPosition) {
-        if (marker) marker.setMap(null);
+        if (currentMarker) currentMarker.setMap(null);
 
-        // 마커 이미지를 커스텀할 수도 있지만, 일단 기본 마커로 설정
-        marker = new kakao.maps.Marker({
+        currentMarker = new kakao.maps.Marker({
             map: map,
             position: locPosition
         });
     }
 
-    // 검색 로직
-    document.getElementById('keyword').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            const ps = new kakao.maps.services.Places();
-            const searchKeyword = this.value;
+    // 탭 전환 함수
+    function switchTab(tabType) {
+        currentTab = tabType;
+        
+        // 버튼 스타일 변경
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons[0].classList.toggle('active', tabType === 'brand');
+        buttons[1].classList.toggle('active', tabType === 'private');
 
-            if (!searchKeyword.trim()) {
-                alert('검색어를 입력해줘! 🎀');
-                return;
-            }
-
-            ps.keywordSearch(searchKeyword, function(data, status) {
-                if (status === kakao.maps.services.Status.OK) {
-                    const listEl = document.getElementById('resultList');
-                    listEl.innerHTML = ''; 
-
-                    const bounds = new kakao.maps.LatLngBounds();
-
-                    data.forEach(place => {
-                        const itemEl = document.createElement('li');
-                        itemEl.className = 'result-item';
-                        itemEl.innerHTML = `<strong>📍 ${place.place_name}</strong><small>${place.address_name}</small>`;
-                        
-                        const placePos = new kakao.maps.LatLng(place.y, place.x);
-                        itemEl.onclick = function() {
-                            map.setCenter(placePos);
-                            displayMarker(placePos);
-                        };
-
-                        listEl.appendChild(itemEl);
-                        bounds.extend(placePos);
-                    });
-                    map.setBounds(bounds);
-                } else {
-                    alert('검색 결과가 없어... 😿');
-                }
-            });
+        // 데이터가 이미 검색되어 있다면 리스트 재업데이트
+        if (rawSearchData.length > 0) {
+            displayFilteredResults();
         }
-    });
-</script>
+    }
 
-</body>
-</html>
+    // 필터링된 결과물 처리 및 화면 표시
+    function displayFilteredResults() {
+        const listEl = document.getElementById('resultList');
+        listEl.innerHTML = ''; 
+
+        const bounds = new kakao.maps.LatLngBounds();
+        let displayCount = 0;
+
+        rawSearchData.forEach(place => {
+            // 장소명에 지정된 브랜드가 포함되어 있는지 판별
+            const isBrand = brandKeywords.some(brand => place.place_name.includes(brand));
+
+            // 조건 필터링 (브랜드 탭인데 브랜드가 아니거나, 개인 탭인데 브랜드인 경우 스킵)
+            if (currentTab === 'brand' && !isBrand) return;
+            if (currentTab === 'private' && isBrand) return;
+
+            displayCount++;
+
+            const itemEl = document.createElement('li');
+            itemEl.className = 'result-item';
+            itemEl.innerHTML = `<strong>☕ ${place.place_name}</strong><small>${place.address_name}</small>`;
+            
+            const placePos = new kakao.maps.LatLng(place.y, place.x);
+            itemEl.onclick = function() {
+                map.setCenter(placePos);
+                displayMarker(placePos);
