@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카페인 수형 지도</title>
+    <title>카페인 수혈 지도</title>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=efddfb39f59d8f50b40de5655470573d&libraries=services"></script>
     <style>
         /* 아늑한 카페 & 커피 테마 컬러 정의 */
@@ -72,11 +72,11 @@
             box-shadow: 0 0 10px rgba(111, 78, 55, 0.2);
         }
 
-        /* 탭 스타일 추가 */
+        /* 탭 스타일 */
         .tab-container {
             display: flex;
             margin-top: 15px;
-            background: #EEF2E6; /* 연한 그리니시 베이지 */
+            background: #EEF2E6;
             padding: 4px;
             border-radius: 8px;
         }
@@ -158,8 +158,8 @@
 <div class="container">
     <div class="sidebar">
         <div class="search-box">
-            <h2>☕ 카페인 수형 지도 🌿</h2>
-            <input type="text" id="keyword" placeholder="동네 이름이나 지역을 검색해봐! (예: 강남역)">
+            <h2>☕ 카페인 수혈 지도 🌿</h2>
+            <input type="text" id="keyword" placeholder="지금 필요한 커피나 카페를 검색해봐!">
         </div>
         
         <div class="tab-container">
@@ -175,10 +175,10 @@
 <script>
     let map;
     let currentMarker;
-    let currentTab = 'brand'; // 현재 활성화된 탭 ('brand' 또는 'private')
-    let rawSearchData = [];   // 카카오 API로부터 받은 순수 검색 결과 보관용
+    let currentTab = 'brand'; 
+    let rawSearchData = [];   
 
-    // 지정된 브랜드 커피숍 리스트
+    // 지정된 브랜드 커피숍 리스트 (백다방 -> 빽다방 반영)
     const brandKeywords = ['스타벅스', '메가커피', '이디야', '더벤티', '빽다방', '할리스', '컴포즈', '투썸', '폴바셋'];
 
     kakao.maps.load(function() {
@@ -186,75 +186,4 @@
     });
 
     function initMap() {
-        const mapContainer = document.getElementById('map');
-        const mapOption = {
-            center: new kakao.maps.LatLng(37.566826, 126.9786567),
-            level: 5
-        };
-
-        map = new kakao.maps.Map(mapContainer, mapOption);
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                const locPosition = new kakao.maps.LatLng(lat, lon);
-                
-                displayMarker(locPosition);
-                map.setCenter(locPosition);
-            }, function(error) {
-                console.log("위치 차단됨: 기본 서울시청을 보여줍니다.");
-            });
-        }
-    }
-
-    function displayMarker(locPosition) {
-        if (currentMarker) currentMarker.setMap(null);
-
-        currentMarker = new kakao.maps.Marker({
-            map: map,
-            position: locPosition
-        });
-    }
-
-    // 탭 전환 함수
-    function switchTab(tabType) {
-        currentTab = tabType;
-        
-        // 버튼 스타일 변경
-        const buttons = document.querySelectorAll('.tab-button');
-        buttons[0].classList.toggle('active', tabType === 'brand');
-        buttons[1].classList.toggle('active', tabType === 'private');
-
-        // 데이터가 이미 검색되어 있다면 리스트 재업데이트
-        if (rawSearchData.length > 0) {
-            displayFilteredResults();
-        }
-    }
-
-    // 필터링된 결과물 처리 및 화면 표시
-    function displayFilteredResults() {
-        const listEl = document.getElementById('resultList');
-        listEl.innerHTML = ''; 
-
-        const bounds = new kakao.maps.LatLngBounds();
-        let displayCount = 0;
-
-        rawSearchData.forEach(place => {
-            // 장소명에 지정된 브랜드가 포함되어 있는지 판별
-            const isBrand = brandKeywords.some(brand => place.place_name.includes(brand));
-
-            // 조건 필터링 (브랜드 탭인데 브랜드가 아니거나, 개인 탭인데 브랜드인 경우 스킵)
-            if (currentTab === 'brand' && !isBrand) return;
-            if (currentTab === 'private' && isBrand) return;
-
-            displayCount++;
-
-            const itemEl = document.createElement('li');
-            itemEl.className = 'result-item';
-            itemEl.innerHTML = `<strong>☕ ${place.place_name}</strong><small>${place.address_name}</small>`;
-            
-            const placePos = new kakao.maps.LatLng(place.y, place.x);
-            itemEl.onclick = function() {
-                map.setCenter(placePos);
-                displayMarker(placePos);
+        const mapContainer
